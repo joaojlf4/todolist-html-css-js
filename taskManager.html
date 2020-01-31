@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Task Manager</title>
+	<style type="text/css">
+		@import url('https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap');
+		*{
+			margin: 0;
+			padding: 0;
+			border: 0;
+			box-sizing: border-box;
+			font-family: "Roboto", sans-serif;
+		}
+		html, body{
+			background: #333;
+			height: 100%;
+		}
+
+		body{
+			display: flex;
+			flex: 1;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.main{
+			height: 80%;
+			width: 80%;
+			background: #FFF;
+			display: flex;
+			flex-direction: column;
+		}
+		.main .addTodo{
+			height: 15%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+		form{
+			display: flex;
+			align-items: center;
+		}
+		.main .addTodo input{
+			padding: 11px;
+			font-size: 18px;
+			outline-color: #333;
+			border-radius: 6px;
+		}
+		.main .addTodo button{
+			margin-left: 6px;
+			cursor: pointer;
+			outline: 0;
+			height: 44px;
+			font-family: "Roboto", sans-serif;
+			font-weight: bold;
+			font-size: 14px;
+			color: #FFF;
+			padding: 11px;
+			background: #f55555;
+			border-radius: 6px;
+			width: 100px;
+		}
+		.main .addTodo button:hover{
+			color: #f55555;
+			border: 2px solid #f55555;
+			background: none;
+		}
+		.main .taskList {
+			display: flex;
+			flex: 1;
+			flex-direction: column;
+			justify-content: center;
+		}
+		.task {
+			margin-top: 4px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+		h4{
+			margin-left: 4px;
+		}
+	</style>
+</head>
+<body>
+	<div class="main">
+		<div class="addTodo">
+			<form action="#">
+				<input type="text" class="todoInput" placeholder="Type your task">
+				<button>Add Task</button>
+			</form>
+		</div>
+		<div class="taskList"></div>
+	</div>
+
+
+	<script type="text/javascript">
+		const addButton = document.querySelector('button');
+		const taskInput = document.querySelector('.todoInput');
+		const taskDiv = document.querySelector('.taskList');
+
+		let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+		addButton.onclick = addTask;
+
+		function addTask(){
+			let newTask = { subject: taskInput.value, completed: false }
+			tasks.push(newTask)
+			renderTasks()
+			saveToStorage()
+			taskInput.value = '';
+		}
+
+
+		function renderTasks(){
+
+
+			taskDiv.innerHTML = ''
+
+			tasks.map((task) => {
+
+				let id = tasks.indexOf(task);
+				
+
+				if(task.completed){
+					taskDiv.innerHTML += `<div class="task"><input type="checkbox" class="cBox${id}" checked><h4><strike>${task.subject}</strike></h4></div>`
+
+				}else{
+					taskDiv.innerHTML += `<div class="task"><input type="checkbox" class="cBox${id}" ><h4>${task.subject}</h4></div>`
+					
+				}
+
+				const taskInput = document.querySelector(`.cBox${id}`);
+
+				taskInput.setAttribute('onchange', `check(${id})`)
+
+			})
+		}
+	function check(id){
+		let isChecked = document.querySelector(`.cBox${id}`).checked;
+		if(isChecked){
+			tasks[id].completed = true;	
+
+			tasks[tasks.length] = tasks[id];
+			
+			tasks.splice(id, 1)
+			
+			renderTasks();
+
+		}else{
+			tasks[id].completed = false;	
+
+			renderTasks();
+
+			isChecked = false
+
+		}
+		saveToStorage()
+	}
+	function saveToStorage(){
+		localStorage.setItem('tasks', JSON.stringify(tasks))
+	}
+	renderTasks();
+
+	</script>
+</body>
+</html>
